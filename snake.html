@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+#container {
+  width: 400px;
+  height: 400px;
+  position: relative;
+  background: yellow;
+  overflow: hidden;
+  border: 2px solid black;
+}
+
+.segment {
+  width: 20px;
+  height: 20px;
+  background: green;
+  border-radius: 50%;
+  position: absolute;
+}
+
+.bead {
+  width: 20px;
+  height: 20px;
+  background: red;
+  border-radius: 50%;
+  position: absolute;
+}
+button {
+  background: skyblue;
+  color: black;
+  border: pink;
+  padding: 10px 18px;
+  margin: 5px;
+  border-radius: 8px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: transform 0.2s, background 0.3s;
+  border: 2px solid pink;
+}
+
+</style>
+</head>
+<body>
+<h1> Hungry Snake </h1>
+<p>
+ <div> <button onclick="setDirection('left')">Left</button>
+  <button onclick="setDirection('right')">Right</button></div>
+  <div><button onclick="setDirection('up')">Up</button>
+  <button onclick="setDirection('down')">Down</button></div>
+  <div><button onclick="eatFood()">Eat</button>
+  <button onclick="restartGame()">Restart</button></div>
+</p>
+
+<div id="container">
+  <div id="snake"></div>
+  <div id="food" class="bead"></div>
+</div>
+
+<script>
+let snake, direction, step, container, snakeDiv, food, game;
+
+function initGame() {
+  snake = [{x:200, y:200}]; 
+  direction = "right";
+  step = 20;
+  container = document.getElementById("container");
+  snakeDiv = document.getElementById("snake");
+  food = document.getElementById("food");
+  placeFood();
+  drawSnake();
+  if (game) clearInterval(game);
+  game = setInterval(moveSnake, 500);
+}
+
+function drawSnake() {
+  snakeDiv.innerHTML = "";
+  for (let i = 0; i < snake.length; i++) {
+    let seg = snake[i];
+    let s = document.createElement("div");
+    s.className = "segment";
+    s.style.left = seg.x + "px";
+    s.style.top = seg.y + "px";
+    snakeDiv.appendChild(s);
+  }
+}
+
+function moveSnake() {
+  let head = {x: snake[0].x, y: snake[0].y};
+
+  if (direction === "left") head.x -= step;
+  if (direction === "right") head.x += step;
+  if (direction === "up") head.y -= step;
+  if (direction === "down") head.y += step;
+
+  if (head.x < 0 || head.y < 0 || head.x >= 400 || head.y >= 400) {
+    alert("Game Over!");
+    clearInterval(game);
+    return;
+  }
+
+  snake.unshift(head);
+  if (head.x === parseInt(food.style.left) && head.y === parseInt(food.style.top)) {
+    placeFood(); // eat food and grow
+  } else {
+    snake.pop(); // remove tail if no food eaten
+  }
+
+  drawSnake();
+}
+
+function placeFood() {
+  const x = Math.floor(Math.random() * 20) * step;
+  const y = Math.floor(Math.random() * 20) * step;
+  food.style.left = x + "px";
+  food.style.top = y + "px";
+}
+
+function setDirection(dir) {
+  direction = dir;
+}
+
+// Eat button logic
+function eatFood() {
+  let head = snake[0];
+  if (head.x === parseInt(food.style.left) && head.y === parseInt(food.style.top)) {
+    // Add a new segment at the same position (grow snake)
+    snake.push({x: head.x, y: head.y});
+    placeFood();
+    drawSnake();
+  }
+}
+
+// Restart button logic
+function restartGame() {
+  clearInterval(game);
+  initGame();
+}
+
+// Start game
+initGame();
+</script>
+</body>
+</html>
